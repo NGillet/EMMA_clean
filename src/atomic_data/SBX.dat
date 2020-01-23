@@ -1,0 +1,9 @@
+NGRP_SPACE	2
+SPACE_BOUND(eV)   13.600000   100.0 inf   
+NGRP_TIME	1
+TIME_BOUND(MYR)   0.000000    inf     
+
+hnu            alphae             alphai             factgrp
+
+20.64  2.83e-22  2.381e-22  0.9975
+224.55  3.73e-25  6.61e-25  0.0025
