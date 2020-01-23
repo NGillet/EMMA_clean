@@ -32,8 +32,13 @@ NVCC_LIBS=
 #===============================================================================
 
 # HDF5
+### OCCIGEN 
 I_DIR += -I$(HDF5_DIR)/include
 LD_DIR += -L$(HDF5_DIR)/lib
+### APU 
+I_DIR += -I/usr/include/hdf5/mpich/
+LD_DIR += -L/usr/lib/x86_64-linux-gnu/hdf5/mpich/
+
 LD_FLAGS += -lhdf5
 
 # CUDA
