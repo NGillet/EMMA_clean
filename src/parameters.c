@@ -845,11 +845,9 @@ void dumpHeader(struct RUNPARAMS *param, struct CPUINFO *cpu,char *fparam){
 
 #ifdef TESTCOSMO
   REAL threshold=param->amrthresh0;
-#ifndef ZOOM
+
   threshold*=POW(2.0,-3.0*param->lcoarse);
-#else
-  threshold*=POW(2.0,-3.0*param->lmaxzoom);
-#endif
+
   if(cpu->rank==RANK_DISP)
     printf("amrthresh : maximum number of part in a cell before refinement : %d -> compute density thresold of %e \n ", (int)param->amrthresh0, threshold);
 #endif

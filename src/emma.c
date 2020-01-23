@@ -60,10 +60,6 @@
 #include "rad_utils_gpu.h"
 #endif
 
-#ifdef ZOOM
-#include "zoom.h"
-#endif
-
 #ifdef SUPERNOVAE
 #include "supernovae.h"
 #endif // SUPERNOVAE
@@ -314,14 +310,6 @@ int main(int argc, char *argv[])
 //for (i=0;i<10;i++) printf("%le\n",(REAL)rdm(0,1));
 //abort();
 
-#ifdef ZOOM
-  // some parameters for ZOOM DEBUG
-  param.rzoom=0.02;
-  param.fzoom=2;
-  //param.lmaxzoom=param.lcoarse+4;
-  param.lmaxzoom=param.lmax;
-#endif
-
 #ifdef MOVIE
 	init_movie(&param);
 #endif
@@ -410,11 +398,9 @@ int main(int argc, char *argv[])
   threshold=param.amrthresh0;
 
 #ifdef TESTCOSMO
-#ifndef ZOOM
+
   threshold*=POW(2.0,-3.0*param.lcoarse);
-#else
-  threshold*=POW(2.0,-3.0*param.lmaxzoom);
-#endif
+
   param.amrthresh= threshold;
 #endif
   gstride=FMAX(8,param.gstride);//POW(2,levelcoarse);
@@ -1472,11 +1458,6 @@ int main(int argc, char *argv[])
   }
 
   //#ifdef STARS
-/* #ifndef ZOOM */
-/*  	param.stars->mstars	= (param.cosmo->ob/param.cosmo->om) * POW(2.0,-3.0*param.lmax)*param.stars->overdensity_cond; */
-/* #else */
-/* 	param.stars->mstars	= (param.cosmo->ob/param.cosmo->om) * POW(2.0,-3.0*param.lmaxzoom); */
-/* #endif */
   //if(cpu.rank==RANK_DISP) printf("mstars set to %e\n",param.stars->mstars);
 
 	/* param.srcint *= param.stars->mstars * param.unit.unit_mass; */
@@ -1555,82 +1536,6 @@ int main(int argc, char *argv[])
 
     int *ptot = (int*)calloc(2,sizeof(int));
     mtot=multicheck(firstoct,ptot,param.lcoarse,param.lmax,cpu.rank,&cpu,&param,0);
-
-#ifdef ZOOM
-    // we trigger the zoom region
-    int izoom;
-
-    for(izoom=levelcoarse;izoom<=param.lmaxzoom;izoom++){
-      zoom_level(levelcoarse,&cpu,&param,firstoct,lastoct);
-    }
-
-    if(cpu.rank==RANK_DISP) printf("zoom amr ok\n");
-    mtot=multicheck(firstoct,ptot,param.lcoarse,param.lmax,cpu.rank,&cpu,&param,0);
-
-
-    // at this stage the amr zoomed grid exists
-    // let us fill it with some data
-#ifdef PIC
-    struct PART *lpartloc;
-
-
-    for(izoom=levelcoarse+1;izoom<=(param.lmaxzoom);izoom++){
-      if(cpu.rank==RANK_DISP){
-	printf("------ ZOOM: filling data at l=%d\n",izoom);
-      }
-    // first PARTICLES
-
-      int npz;
-      REAL munit;
-      lpartloc=lastpart+1;
-#ifdef GRAFIC
-      lastpart=read_grafic_part(lpartloc, &cpu, &munit, &ainit, &npz, &param,izoom);
-#endif // GRAFIC
-      //printf("reap=%d dif p1=%ld difp2=%ld\n",npz,lastpart-lpartloc+1,lastpart-part+1);
-
-
-      // ASSIGNING PARTICLES TO THE GRID
-
-
-      part2grid(lpartloc,&cpu,npz);
-      mtot=multicheck(firstoct,ptot,param.lcoarse,param.lmax,cpu.rank,&cpu,&param,0);
-
-
-
-
-
-      // ========================  computing the memory location of the first freepart and linking the free parts
-
-      freepart=lastpart+1; // at this stage the memory is perfectly aligned
-      freepart->prev=NULL;
-      freepart->next=freepart+1;
-      for(curp=freepart+1;curp<(part+npartmax);curp++){
-	curp->prev=curp-1;
-	curp->next=NULL;
-	if(curp!=(part+npartmax-1)) curp->next=curp+1; // GNHEIN ?
-      }
-
-      cpu.freepart=freepart;
-
-    // SECOND HYDRO FIELD
-      int ncellhydro;
-      ncellhydro=read_grafic_hydro(&cpu,&ainit, &param, izoom);
-
-      if(cpu.rank==RANK_DISP) printf("zoom level=%d %d hydro cell found in grafic file with aexp=%e\n",izoom, ncellhydro, ainit);
-
-      mtot=multicheck(firstoct,ptot,param.lcoarse,param.lmax,cpu.rank,&cpu,&param,0);
-
-    }
-
-
-
-#endif // PIC
-
-    /* tsim=tmax; */
-    /* dumpIO(tsim+adt[levelcoarse-1],&param,&cpu,firstoct,adt,0); */
-    /* dumpIO(tsim+adt[levelcoarse-1],&param,&cpu,firstoct,adt,1); */
-    // end ZOOM
-#endif // ZOOM
 
 
 #ifdef SNTEST

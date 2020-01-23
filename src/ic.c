@@ -312,12 +312,6 @@ if (debug) printf("header read ok\n");
   mass=1./(np1*np2*np3);
 #endif
 
-#ifdef ZOOM
-  if(level>param->lcoarse){
-    offidx=POW(2,3*(level-param->lcoarse)); // for ids of particles
-  }
-#endif
-
   velx=(float*)malloc(sizeof(float)*np1*np2);
   vely=(float*)malloc(sizeof(float)*np1*np2);
   velz=(float*)malloc(sizeof(float)*np1*np2);
@@ -434,17 +428,6 @@ if (debug) printf("flag\n");
 	if(segment_part(x,y,z,cpu,cpu->levelcoarse)){
 
 	  keep=1;
-#ifdef ZOOM
-	  // is the current particle at the correct level?
-	  int lzoom;
-	  lzoom=pos2levelzoom(x,y,z,param);
-	  REAL rloc;
-	  rloc=sqrt(((x-0.5)*(x-0.5)+(y-0.5)*(y-0.5)+(z-0.5)*(z-0.5)));
-
-	  if(lzoom!=level){
-	    keep=0;
-	  }
- #endif
 
 	  if(keep) {
  	    part[ip].x=x;
@@ -741,13 +724,7 @@ struct PART * read_split_grafic_part(struct PART *part, struct CPUINFO *cpu, REA
   mass=1./(nptot);
 #endif
 
-#ifdef ZOOM
-  if(level>param->lcoarse){
-    offidx=POW(2,3*(level-param->lcoarse)); // for ids of particles
-  }
-#else
   offidx=cpu->rank*(nptot)/cpu->nproc; // NOTE WE ASSUME AN EVENLY SPLITTED DISTRIBUTION
-#endif
 
   velx=(float*)malloc(sizeof(float)*np1*np2);
   vely=(float*)malloc(sizeof(float)*np1*np2);
@@ -854,18 +831,6 @@ struct PART * read_split_grafic_part(struct PART *part, struct CPUINFO *cpu, REA
 if(segment_part(xs,ys,zs,cpu,cpu->levelcoarse)){
 
 	  keep=1;
-#ifdef ZOOM
-	  // is the current particle at the correct level?
-	  int lzoom;
-	  lzoom=pos2levelzoom(x,y,z,param);
-	  REAL rloc;
-	  rloc=sqrt(((x-0.5)*(x-0.5)+(y-0.5)*(y-0.5)+(z-0.5)*(z-0.5)));
-
-	  if(lzoom!=level){
-
-	    keep=0;
-	  }
- #endif
 
 	  if(keep) {
  	    part[ip].x=x;

@@ -16,11 +16,6 @@
 #include "hydro_utils.h"
 #include "poisson_utils.h"
 
-#ifdef ZOOM
-#include "zoom.h"
-#endif
-
-
 #ifdef WHYDRO2
 REAL comp_grad_hydro(struct OCT *curoct, int icell){
   REAL gradd[3]={0.,0.,0.};
@@ -914,10 +909,6 @@ void L_mark_cells(int level,struct RUNPARAMS *param, struct OCT **firstoct, int 
 	  //printf("level=%d ",level);
 	  dx=1./POW(2,level);
 
-#ifdef ZOOM
- 	  rin=param->rzoom*POW(param->fzoom,param->lmaxzoom-level-1);
-	  //printf("rin=%e\n",rin);
-#endif
 	  for(pass=0;pass<3;pass++)
 	    {
 	      marker++;
@@ -1161,19 +1152,6 @@ void L_mark_cells(int level,struct RUNPARAMS *param, struct OCT **firstoct, int 
 			case 2: // marking cells satisfying user defined criterion marker=3/6
 			  if((curoct->level<=param->lmax)&&(ismooth==0)){ // we don't need to test the finest level
 
-
-#ifdef ZOOM
-			    // if within zoomed region the cell is marked in any case
-			    int flagzoom=0;
-			    if(level<param->lmaxzoom){
-			      flagzoom=queryzoom(curoct,icell,dx,rin);
-			      if((flagzoom)&&(curoct->cell[icell].marked==0)) {
-				curoct->cell[icell].marked=marker;
-				nmark++;stati[2]++;
-			      }
-			    }
-#endif
-
 			    REAL den;
 
 #ifdef EVRARD
@@ -1234,9 +1212,6 @@ void L_mark_cells(int level,struct RUNPARAMS *param, struct OCT **firstoct, int 
 			    // --------------- MAIN AMR COSMO
 
 			    int refarea=1;
-#ifdef ZOOM
-			    refarea=(curoct->level>=param->lmaxzoom);
-#endif // ZOOM
 
 #ifndef AMR_SEMILAGRANGIAN
 

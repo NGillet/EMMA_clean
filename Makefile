@@ -78,7 +78,6 @@ C_OBJS= \
 	chem_utils.o \
 	src_utils.o \
 	stars.o \
-	zoom.o \
 	supernovae.o \
 	movie.o \
 	convert.o \
@@ -86,6 +85,8 @@ C_OBJS= \
 	restart.o \
 	ic.o\
 	agn.o
+
+# 	zoom.o \
 
 CUDA_OBJS= \
 	interface.o \
@@ -117,7 +118,7 @@ endif
 ifeq ($(ARCH),GPU)
 EXECUTABLE = emmagpu
 else
-EXECUTABLE = emmacpuX
+EXECUTABLE = emmacpu
 endif
 
 OBJ=$(patsubst %,$(OBJDIR)/%,$(C_OBJS))

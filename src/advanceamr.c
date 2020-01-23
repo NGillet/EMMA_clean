@@ -1106,12 +1106,9 @@ double tst[10];
   MPI_Barrier(cpu->comm);
   tst[0]=MPI_Wtime();
 #endif // WMPI
-#ifdef ZOOM
-    if(level>=param->lmaxzoom)
-#endif //ZOOM
-      {
+
 	Stars(param,cpu, adt[level-1], aexp, level, is);
-      }
+
 #endif // STARS
 
     //mtot=multicheck(firstoct,ptot,param->lcoarse,param->lmax,cpu->rank,cpu,param,7);
@@ -1141,12 +1138,9 @@ double tagn[10];
   MPI_Barrier(cpu->comm);
   tagn[0]=MPI_Wtime();
 #endif // WMPI
-#ifdef ZOOM
-    if(level>=param->lmaxzoom)
-#endif //ZOOM
-      {
+
 	agn(param,cpu, adt[level-1], aexp, level, is);
-      }
+      
 #endif // STARS
 
     //mtot=multicheck(firstoct,ptot,param->lcoarse,param->lmax,cpu->rank,cpu,param,7);
@@ -1221,12 +1215,9 @@ double tsn[10];
         (level<param->lmax)           &&
         (dxnext>dxkpc)                ){
 
-#ifndef ZOOM
-      if((ndt[level-1]%2==1)||(level==param->lcoarse))
-#else
-	if((ndt[level-1]%2==1)||(level>=param->lmaxzoom))
-#endif // ZOOM
-	  {
+
+	if((ndt[level-1]%2==1)||(level==param->lcoarse))
+	{
 	    L_clean_marks(level,firstoct);
           // marking the cells of the current level
 
