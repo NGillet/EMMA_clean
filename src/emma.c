@@ -220,14 +220,6 @@ int main(int argc, char *argv[])
   param.stars=&stars;
 #endif
 
-
-
-
-#if defined(WRADTEST) || defined(SNTEST)
-  struct UNITARY_STARS_TEST unitary_stars_test;
-  param.unitary_stars_test = &unitary_stars_test;
-#endif // defined
-
 #ifdef SUPERNOVAE
   struct SNPARAM sn;
   param.sn=&sn;
@@ -1118,12 +1110,7 @@ int main(int argc, char *argv[])
     //===================================================================================================================================
 
     // initialisation of hydro quantities
-    // Shock Tube
 
-#ifdef TUBE
-    printf("Read Shock Tube\n");
-    read_shocktube(&cpu, &tinit,&param,firstoct);
-#endif // TUBE
 #endif // EVRARD
 #endif // GRAFIC
 #endif // WHYDRO2
@@ -1149,174 +1136,7 @@ int main(int argc, char *argv[])
 
     if (flag) abort();
 #endif // WCHEM
-
-#ifdef WRADTEST
-    // SETTING THE RADIATIVE TRANSFER
-
-    REAL X0=1./POW(2,levelcoarse);
-    int igrp;
-    param.unit.unit_v=LIGHT_SPEED_IN_M_PER_S;
-    param.unit.unit_n=1.;
-
-#ifndef TESTCOSMO
-#ifndef TESTCLUMP
-    param.unit.unit_l= 15e3 *PARSEC;
-#else //TESTCLUMP
-    param.unit.unit_l=6.6e3*PARSEC;
-    REAL vclump=4./3.*M_PI*POW(0.8e3*PARSEC,3); // clump volume in internal units
-    param.unit.unit_mass=200.*(POW(param.unit.unit_l,3)+199.*vclump)*PROTON_MASS*MOLECULAR_MU;
-    param.unit.unit_N=(200.*(POW(param.unit.unit_l,3)+199.*vclump))/POW(param.unit.unit_l,3);
-    param.unit.unit_d=param.unit.unit_mass/POW(param.unit.unit_l,3);
-    REAL pstar;
-    pstar=param.unit.unit_n*param.unit.unit_mass*POW(param.unit.unit_v,2);
-#endif //TESTCLUMP
-    param.unit.unit_t=param.unit.unit_l/param.unit.unit_v;
-    ainit=1.;
-#else //TESTCOSMO
-    ainit=1./(16.);;
-    REAL om=0.27;
-    REAL ov=0.73;
-    REAL ob=0.045;
-    REAL h0=0.73;
-    REAL H0=h0*100*1e3/1e6/PARSEC;
-
-    param.cosmo->om=om;
-    param.cosmo->ov=ov;
-    param.cosmo->ob=ob;
-    param.cosmo->H0=h0*100.;
-
-    REAL rstar= 20.*1e6*PARSEC; // box size in m
-    double rhoc=3.*H0*H0/(8.*M_PI*NEWTON_G); // comoving critical density (kg/m3)
-
-    REAL rhostar=rhoc*om;
-    REAL tstar=2./H0/SQRT(om); // sec
-    REAL vstar=rstar/tstar; //m/s
-
-    param.unit.unit_l=rstar;
-    param.unit.unit_v=vstar;
-    param.unit.unit_t=tstar;
-    param.unit.unit_n=1.;
-
-#endif //TESTCOSMO
-
-    for(level=levelcoarse;level<=levelmax;level++)
-      {
-	dxcur=POW(0.5,level);
-	nextoct=firstoct[level-1];
-	if(nextoct==NULL) continue;
-	do // sweeping level
-	  {
-	    curoct=nextoct;
-	    nextoct=curoct->next;
-	    for(icell=0;icell<8;icell++) // looping over cells in oct
-	      {
-		xc=curoct->x+( icell&1)*dxcur+dxcur*0.5;
-		yc=curoct->y+((icell>>1)&1)*dxcur+dxcur*0.5;
-		zc=curoct->z+((icell>>2))*dxcur+dxcur*0.5;
-		for(igrp=0;igrp<NGRP;igrp++){
-
-#ifdef WCHEM
-		  REAL xion,temperature;
-		  REAL eint;
-		  REAL nh;
-#ifndef COOLING
-		  temperature=1e4;
-		  xion=1.2e-3;
-#else
-#ifndef TESTCLUMP
-      temperature=1e2;
-      //xion=1e-6;
-      xion=1.-1e-5;
-#else
-      temperature=8000.;
-      xion=1e-5;
-#endif // TESTCLUMP
-#endif // COOLING
-
-
-#ifndef TESTCOSMO
-#ifndef TESTCLUMP
-		  nh=1000.;
-#else
-		  nh=200.;
-#endif // TESTCLUMP
-#else
-		  nh=0.2;
-#endif // TESTCOSMO
-
-#ifdef TESTCLUMP
-		  // defining the clump
-		  REAL X0=5./6.6;
-		  REAL rc=SQRT(POW(xc-X0,2)+POW(yc-0.5,2)+POW(zc-0.5,2));
-		  if(rc<=(0.8/6.6)){
-		    temperature=40.;
-		    nh=40000.;
-		  }
-#endif // TESTCLUMP
-
-#ifndef TESTCLUMP
-		  param.unit.unit_mass=nh*POW(param.unit.unit_l,3)*PROTON_MASS*MOLECULAR_MU;
-		  param.unit.unit_d=nh*PROTON_MASS*MOLECULAR_MU;
-		  param.unit.unit_N=nh; // atom/m3 // we assume gas only and therefore ob=om
-		  REAL pstar;
-		  pstar=param.unit.unit_n*param.unit.unit_mass*POW(param.unit.unit_v,2);// note that below nh is already supercomiving hence the lack of unit_l in pstar
-#endif // TESTCLUMP
-
-		  curoct->cell[icell].rfield.nh=nh*POW(param.unit.unit_l,3)/param.unit.unit_n;
-		  eint=(1.5*curoct->cell[icell].rfield.nh*(1.+xion)*KBOLTZ*temperature)/pstar;
-		  curoct->cell[icell].rfield.eint=eint;
-		  curoct->cell[icell].rfield.nhplus=xion*curoct->cell[icell].rfield.nh;
-		  E2T(&curoct->cell[icell].rfield,1.0,&param);
-
-#ifdef WRADHYD
-		  curoct->cell[icell].field.d=curoct->cell[icell].rfield.nh*PROTON_MASS*MOLECULAR_MU/param.unit.unit_mass;
-		  curoct->cell[icell].field.u=0.0;
-		  curoct->cell[icell].field.v=0.0;
-		  curoct->cell[icell].field.w=0.0;
-		  curoct->cell[icell].field.p=eint*(GAMMA-1.);
-		  curoct->cell[icell].field.a=SQRT(GAMMA*curoct->cell[icell].field.p/curoct->cell[icell].field.d);
-		  getE(&(curoct->cell[icell].field));
-		 // printf("PP=%e eint=%e pstar=%e\n",curoct->cell[icell].field.p,eint,pstar);
-		 //  printf("rho=%e eint=%e \n",curoct->cell[icell].field.d,eint*dxcur*param.unit.unit_l);
-#endif // WRADHYD
-
-//#define NFW
-#ifdef NFW
-      REAL rho0 = curoct->cell[icell].rfield.nh*PROTON_MASS*MOLECULAR_MU/param.unit.unit_mass;
-		  REAL RS = 16./POW2(levelcoarse);
-		  REAL r=SQRT(POW(xc-0.5,2)+POW(yc-0.5,2)+POW(zc-0.5,2));
-		  curoct->cell[icell].field.d=rho0 /(r/RS *POW(1+r/RS,2));
-#endif // NFW
-
-//#define PLUMMER
-#ifdef PLUMMER
-      REAL rho0 = curoct->cell[icell].rfield.nh*PROTON_MASS*MOLECULAR_MU/param.unit.unit_mass;
-		  REAL RS = 8./POW2(levelcoarse);
-		  REAL r=SQRT(POW(xc-0.5,2)+POW(yc-0.5,2)+POW(zc-0.5,2));
-		  curoct->cell[icell].field.d= rho0(1.+ 16 *POW( 1.+ POW(r/RS,2) , -5./2.));
-#endif // PLUMMER
-
-
-#endif // WCHEM
-
-		}
-	      }
-	  }while(nextoct!=NULL);
-      }
-
-
-#endif // WRADTEST
 #endif // WRAD
-
-#ifndef WRADTEST
-#ifndef WRAD
-#ifdef SNTEST
-  init_sedov(&param, firstoct);
-  tinit=tsim;
-#endif // SNTEST
-#endif // WRAD
-#endif // WRADTEST
-
 
 #ifdef TEST_STAR_FORMATION
   init_star_test(&param, firstoct);
@@ -1591,8 +1411,6 @@ int main(int argc, char *argv[])
   // ===== ED BOOKEEPING FOR SPLIT INITIAL CONDITIONS
 
 
-#ifndef JUSTIC
-
     // Loop over time
     for(nsteps=nstepstart;(nsteps<=param.nsteps)*(tsim<tmax);nsteps++){
 
@@ -1602,13 +1420,13 @@ int main(int argc, char *argv[])
       cosmo.aexp=interp_aexp(tsim,(double *)cosmo.tab_aexp,(double *)cosmo.tab_ttilde);
       cosmo.tsim=tsim;
       if(cpu.rank==RANK_DISP) printf("\n============== STEP %d aexp=%e z=%lf tconf=%e tmax=%e================\n",nsteps,cosmo.aexp,1./cosmo.aexp-1.,tsim,tmax);
-#else
+#else //TESTCOSMO
 #ifndef WRAD
       if(cpu.rank==RANK_DISP) printf("\n============== STEP %d tsim=%e ================\n",nsteps,tsim);
-#else
+#else //WRAD
       if(cpu.rank==RANK_DISP) printf("\n============== STEP %d tsim=%e [%e Myr] ================\n",nsteps,tsim,tsim*param.unit.unit_t/MYR);
-#endif
-#endif
+#endif //WRAD
+#endif //TESTCOSMO
 
       // Resetting the timesteps
 
@@ -1749,7 +1567,7 @@ int main(int argc, char *argv[])
 	else{
 	  dumpIO(tsim+adt[levelcoarse-1],&param,&cpu,firstoct,adt,0);
 	}
-#else
+#else // EDBERT
 
 #ifndef TESTCOSMO
 #ifdef WRAD
@@ -1757,7 +1575,7 @@ int main(int argc, char *argv[])
 #else
 	tdump=(tsim+adt[levelcoarse-1]);
 #endif // WRAD
-#else
+#else //TESTCOSMO
 	tdump=interp_aexp(tsim+adt[levelcoarse-1],cosmo.tab_aexp,cosmo.tab_ttilde);
 	adump=tdump;
 	printf("tdump=%e tsim=%e adt=%e\n",tdump,tsim,adt[levelcoarse-1]);
@@ -1831,8 +1649,6 @@ int main(int argc, char *argv[])
     else{
       dumpIO(tsim,&param,&cpu,firstoct,adt,1);
     }
-
-#endif
 
 
 //printf("begin freeing\n");

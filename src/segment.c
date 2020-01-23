@@ -92,15 +92,9 @@ int segment_cell(struct OCT *curoct, int icell, struct CPUINFO *cpu, int levelco
 	      c[0]=ix+(int)(i*POW(0.5,curoct->level-levelcoarse+1))-(i==1);
 	      c[1]=iy+(int)(j*POW(0.5,curoct->level-levelcoarse+1))-(j==1);
 	      c[2]=iz+(int)(k*POW(0.5,curoct->level-levelcoarse+1))-(k==1);
-#ifndef TUBE
+
 	      keyloc=(unsigned long long)(hilbert_c2i(3,levelcoarse,c));
-#else
-#ifdef SED
-	      keyloc=(unsigned long long)(hilbert_c2i(3,levelcoarse,c));
-#else
-	      keyloc=(unsigned long long)(c[0]+c[1]*POW(2,levelcoarse-1)+c[2]*POW(2,levelcoarse-1)*POW(2,levelcoarse-1));
-#endif
-#endif
+
 	      //if((curoct->level==1)) printf("i=%d j=%d k=%d|| %d %d %d || %d || %d %d\n",i,j,k,(int)(c[0]),(int)(c[1]),(int)(c[2]),keyloc,cpu->kmin,cpu->kmax);
 	      if(first){
 		min=keyloc;
@@ -159,16 +153,8 @@ unsigned long long oct2key(struct OCT *curoct,int level){
   c[0]=ix;
   c[1]=iy;
   c[2]=iz;
-#ifndef TUBE
-  keyloc=(unsigned long long)(hilbert_c2i(3,level,c));
-#else
-#ifdef SED
-  keyloc=(unsigned long long)(hilbert_c2i(3,level,c));
-#else
-  keyloc=(unsigned long long)(ix+iy*POW(2,level-1)+iz*POW(2,level-1)*POW(2,level-1));
-#endif
-#endif
 
+  keyloc=(unsigned long long)(hilbert_c2i(3,level,c));
 
   return keyloc;
 
@@ -192,15 +178,8 @@ unsigned long long pos2key(REAL xc, REAL yc, REAL zc,int level){
   c[0]=ix;
   c[1]=iy;
   c[2]=iz;
-#ifndef TUBE
+
   keyloc=(unsigned long long)(hilbert_c2i(3,level,c));
-#else
-#ifdef SED
-  keyloc=(unsigned long long)(hilbert_c2i(3,level,c));
-#else
-  keyloc=(unsigned long long)(ix+iy*POW(2,level-1)+iz*POW(2,level-1)*POW(2,level-1));
-#endif
-#endif
 
   return keyloc;
 
@@ -237,15 +216,9 @@ void assigncpu2coarseoct(struct OCT *curoct, struct CPUINFO *cpu, int levelcoars
     c[0]=ix;
     c[1]=iy;
     c[2]=iz;
-#ifndef TUBE
+
     keyloc=(unsigned long long)(hilbert_c2i(3,levelcoarse,c));
-#else
-#ifdef SED
-    keyloc=(unsigned long long)(hilbert_c2i(3,levelcoarse,c));
-#else
-    keyloc=(unsigned long long)(ix+iy*POW(2,levelcoarse-1)+iz*POW(2,levelcoarse-1)*POW(2,levelcoarse-1));
-#endif
-#endif
+
     cpuloc=keyloc/cpu->nkeys;
     curoct->cpu=(cpuloc>(cpu->nproc-1)?cpu->nproc-1:cpuloc);
   }
@@ -272,15 +245,9 @@ int segment_part(REAL xc,REAL yc,REAL zc, struct CPUINFO *cpu, int levelcoarse)
   c[0]=ix;
   c[1]=iy;
   c[2]=iz;
-#ifndef TUBE
+
   keyloc=(unsigned long long)(hilbert_c2i(3,levelcoarse,c));
-#else
-#ifdef SED
-  keyloc=(unsigned long long)(hilbert_c2i(3,levelcoarse,c));
-#else
-  keyloc=(unsigned long long)(ix+iy*POW(2,levelcoarse-1)+iz*POW(2,levelcoarse-1)*POW(2,levelcoarse-1));
-#endif
-#endif
+
   if((keyloc>=cpu->kmin)&&(keyloc<=cpu->kmax)){
     return 1;
   }

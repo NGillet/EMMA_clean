@@ -137,10 +137,7 @@ void cuCompCooling(REAL temp, REAL x, REAL nH, REAL *lambda, REAL *tcool, REAL a
   // Compton Cooling
 
   c5=0;
-#ifndef WRADTEST
-  c5=5.406e-24*(temp-2.727/aexp)/POW(aexp/0.001,4)*x*nh2;
-  REAL Ta=2.727/aexp; c5=5.406e-36*(temp-Ta)/(aexp*aexp*aexp*aexp)*x*nh2*(1.+yHE);
-#endif
+
   // Overall Cooling
 
   *lambda=c1+c2+c3+c4+c5+c6;// ! erg*cm-3*s-1

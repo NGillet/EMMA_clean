@@ -200,16 +200,6 @@ struct UVBACKGROUND{
 };
 #endif // defined
 
-#if defined(WRADTEST) || defined(SNTEST)
-struct UNITARY_STARS_TEST{
-  REAL lifetime;
-  REAL src_pos_x;
-  REAL src_pos_y;
-  REAL src_pos_z;
-  REAL mass;
-};
-#endif // defined
-
 //=======================================
 struct ATOMIC{
   char path[1024]; ///< path of the file containing the atomic data
@@ -401,11 +391,6 @@ struct RUNPARAMS{
 
   struct ATOMIC atomic;
   struct SPECTRUM spectrum;
-
-#if defined(WRADTEST) || defined(SNTEST)
-  struct UNITARY_STARS_TEST *unitary_stars_test;
-#endif // defined
-
   struct PHYSICAL_STATE *physical_state;
 
   REAL aexpdump; // the next expansion factor to be dumped

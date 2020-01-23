@@ -778,14 +778,6 @@ if(level==param->lcoarse){
     dtnew=(dtrad<dtnew?dtrad:dtnew);
 #endif
 
-#ifdef WRADTEST
-#ifndef TESTCLUMP
-#ifndef WRADHYD
-    dtnew=(dtrad<dtnew?dtrad:dtnew);
-#endif // WRADHYD
-#endif // TESTCLUMP
-#endif // WRADTEST
-
 #endif // WRAD
 
 #ifdef FLOORDT
@@ -1206,10 +1198,6 @@ double tsn[10];
     REAL dxnext=POW(0.5,level+1)*aexp;
     //REAL dxkpc=param->dx_res*PARSEC/param->cosmo->unit_l;
     REAL dxkpc=param->dx_res*PARSEC/param->unit.unit_l;
-
-#ifdef TUBE
-    dxkpc=0.;
-#endif
 
     if( (param->lmax!=param->lcoarse) &&
         (level<param->lmax)           &&

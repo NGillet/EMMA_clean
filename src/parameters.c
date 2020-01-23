@@ -681,22 +681,6 @@ void GetParameters(char *fparam, struct RUNPARAMS *param){
   //read_mass_loss(param);
 #endif // SUPERNOVAE
 
-#if defined(WRADTEST) || defined(SNTEST)
-/*
-  param->unitary_stars_test->lifetime = 3.673e6;
-  param->unitary_stars_test->mass=2e2;
-  param->unitary_stars_test->src_pos_x=0.;
-  param->unitary_stars_test->src_pos_y=0.;
-  param->unitary_stars_test->src_pos_z=0.;
-*/
-
-  param->unitary_stars_test->lifetime = 8e6;
-  param->unitary_stars_test->mass=2e2;
-  param->unitary_stars_test->src_pos_x=0.5;
-  param->unitary_stars_test->src_pos_y=0.5;
-  param->unitary_stars_test->src_pos_z=0.5;
-#endif // defined
-
 }
 
 void dumpInfo(char *filename_info, struct RUNPARAMS *param, struct CPUINFO *cpu){

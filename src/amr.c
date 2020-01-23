@@ -1327,62 +1327,7 @@ void L_mark_cells(int level,struct RUNPARAMS *param, struct OCT **firstoct, int 
 
 
 #endif // SNTEST
-
-#ifdef WRAD
-#ifdef WRADTEST
-			    // == START AMR STRATEGY FOR RAD TESTS
-			    mcell=comp_grad_rad(curoct, icell)*(curoct->level>=param->lcoarse);
-
-#ifdef TESTCLUMP
-			    REAL den2;
-			    den2=curoct->cell[icell].rfield.nh*param->unit.unit_N;
-			    den=-1;
-
-			    //mcell=(curoct->cell[icell].rfield.src>0.);
-			    if((((den<8e-1)&&(den>1e-1))||(den2>250.))&&(curoct->cell[icell].marked==0)) {
-			      curoct->cell[icell].marked=marker;
-			      nmark++;stati[2]++;
-			    }
-
-#else
-			    //mcell=0.;
-			    den=curoct->cell[icell].rfield.nhplus/curoct->cell[icell].rfield.nh; // xion
-#endif // TESTCLUMP
-
-
- 			    //mcell=(curoct->cell[icell].rfield.src>0.);
-			    if(((den<8e-1)&&(den>1e-2))&&(curoct->cell[icell].marked==0)) {
-			      curoct->cell[icell].marked=marker;
-			      nmark++;stati[2]++;
-			    }
-
-			    // == END AMR STRATEGY FOR RAD TESTS
-#else
-
-#ifdef WCHEM
-			    mcell=comp_grad_rad(curoct, icell)*(curoct->level>=param->lcoarse);
-			    if((mcell>(threshold))&&(curoct->cell[icell].marked==0)) {
-			      curoct->cell[icell].marked=marker;
-			      nmark++;stati[2]++;
-			    }
-
-#endif // WCHEM
-#endif // WRADTEST
-#endif // WRAD
 #endif // PIC
-
-#ifdef TUBE
-#ifdef SED
-			    mcell=curoct->cell[icell].field.d;
-#else
-			    mcell=comp_grad_hydro(curoct, icell)*(curoct->level>=param->lcoarse);//*(fabs(curoct->y-0.5)<0.05)*(fabs(curoct->z-0.5)<0.05);
-#endif
-			    if(mcell>mmax) mmax=mcell;
-			    if((mcell>(1.1))&&(curoct->cell[icell].marked==0)) {
-			      curoct->cell[icell].marked=marker;
-			      nmark++;stati[2]++;
-			    }
-#endif // TUBE
 #endif // EVRARD
 
 			  }

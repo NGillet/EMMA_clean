@@ -2452,10 +2452,6 @@ void grav_correction(int level,struct RUNPARAMS *param, struct OCT ** firstoct, 
 
 // Structure de base
 
-#ifdef WRADTEST
-#define HYDROTEST
-#endif // WRADTEST
-
 #ifdef SNTEST
 #define HYDROTEST
 #endif // SNTEST

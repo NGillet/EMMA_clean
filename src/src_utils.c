@@ -362,83 +362,6 @@ int stars_sources(struct CELL *cell,struct RUNPARAMS *param, REAL aexp){
 }
 #endif // STARS
 
-#ifdef WRADTEST
-int stromgren_source(struct CELL *cell,struct OCT *curoct,struct RUNPARAMS *param, REAL tcur, REAL aexp){
-  // ============= STROMGREN SPHERE CASE =======================
-  int flag=0;
-
-  const REAL X0= 1./POW2(param->lcoarse);
-  const REAL tcur_in_yrs = tcur*param->unit.unit_t/MYR *1e6;
-  const REAL dxcur=POW(0.5,curoct->level);
-
-  const REAL x_src=param->unitary_stars_test->src_pos_x;
-  const REAL y_src=param->unitary_stars_test->src_pos_y;
-  const REAL z_src=param->unitary_stars_test->src_pos_z;
-
-  const REAL xc=curoct->x+( cell->idx&1    )*dxcur+dxcur*0.5;
-  const REAL yc=curoct->y+((cell->idx>>1)&1)*dxcur+dxcur*0.5;
-  const REAL zc=curoct->z+((cell->idx>>2)  )*dxcur+dxcur*0.5;
-
-  const int nsub=1;
-  const REAL R = SQRT(POW(xc-x_src,2) + POW(yc-y_src,2) + POW(zc-z_src,2));
-
-  //if((FABS(xc-x_src)<=X0)*(FABS(yc-y_src)<=X0)*(FABS(zc-z_src)<=X0) && lifetime_test){
-
-    if( (R<=X0) && ( fmod(tcur_in_yrs,param->unitary_stars_test->lifetime) < param->unitary_stars_test->lifetime/nsub )){ //2103.
-    //if(curoct->x==x_src && curoct->y==y_src && curoct->z==z_src &&  cell->idx==0){
-      if((xc>0.)*(yc>0.)*(zc>0.)){
-        //cell->rfield.src=param->srcint/POW(X0,3)*param->unit.unit_t/param->unit.unit_n*POW(aexp,2)/8.;///8.;///8.;///POW(1./16.,3);
-
-        int igrp_time;
-        for(igrp_time=0;igrp_time<NGRP_TIME;igrp_time++){
-
-          REAL t_bound_min = param->atomic.time_bound[igrp_time];
-          REAL t_bound_max = param->atomic.time_bound[igrp_time+1];
-
-          if( (tcur_in_yrs>= t_bound_min) &&
-              (tcur_in_yrs<  t_bound_max) ){
-
-            int igrp_space;
-            for(igrp_space=0;igrp_space<NGRP_SPACE;igrp_space++){
-
-              const int igrp= igrp_time*NGRP_SPACE + igrp_space;
-
-              //REAL srcint = param->srcint*(tcur>0?1.:0);
-              const REAL srcint = param->unitary_stars_test->mass* SOLAR_MASS * param->srcint*(tcur>0?1.:0) *nsub/8;
-
-#ifdef DECREASE_EMMISIVITY_AFTER_TLIFE
-              REAL t = tcur_in_yrs;
-              t/=param->unitary_stars_test->lifetime;
-              srcint *= (t<=1.?1.:POW(t,-4.));
-#else
-              //srcint *= (tcur_in_yrs<param->unitary_stars_test->lifetime?1.:0.);
-#endif // DECREASE_EMMISIVITY_AFTER_TLIFE
-
-              cell->rfield.src[igrp]= srcint/POW(X0*param->unit.unit_l,3)*param->unit.unit_t/param->unit.unit_N*POW(aexp,2);//8.;///8.;///POW(1./16.,3);
-              cell->rfieldnew.src[igrp]=cell->rfield.src[igrp];
-            }
-          }
-        }
-      flag=1;
-    }
-    else{
-      flag=0;
-    }
-  }
-  else{
-    int igrp;
-    for(igrp=0;igrp<NGRP;igrp++){
-      cell->rfield.src[igrp]=0.;
-      cell->rfieldnew.src[igrp]=0.;
-    }
-    flag=0;
-  }
-
-  return flag;
-  // ============= END STROMGREN SPHERE CASE =======================
-}
-#endif // WRADTEST
-
 #ifdef TESTCLUMP
 void clump_sources(struct CELL *cell, struct OCT *curoct,struct RUNPARAMS *param, REAL aexp){
 
@@ -481,17 +404,6 @@ int putsource(struct CELL *cell,struct RUNPARAMS *param,int level,REAL aexp, REA
     cell->rfieldnew.src[igrp]=0.;
   }
 
-
-#ifdef WRADTEST
-  // ========================== FOR TESTS ============================
-  // =================================================================
-#ifndef TESTCLUMP
-  flag = stromgren_source(cell,curoct,param,tcur, aexp);
-#else //ifdef TESTCLUMP
-  clump_sources(curoct,param, aexp);
-#endif //TESTCLUMP
-
-#else //ifndef WRADTEST
   // ========================== FOR COSMOLOGY CASES ============================
   // ===========================================================================
 
@@ -539,9 +451,6 @@ int putsource(struct CELL *cell,struct RUNPARAMS *param,int level,REAL aexp, REA
 #endif // UVBKG
 
 #endif // STARS_TO_UVBKG
-
-#endif // WRADTEST
-
 
   return flag;
 }
