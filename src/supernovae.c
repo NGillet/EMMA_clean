@@ -173,13 +173,7 @@ void kineticFeedback(struct RUNPARAMS *param, struct CELL *cell,struct PART *cur
 /// of the oct and uniformly in all cells
 // ----------------------------------------------------------//
 
-#ifdef SNTEST
-  //REAL msn = param->unitary_stars_test->mass * SOLAR_MASS /param->unit.unit_mass;
-  //REAL mtot_feedback = msn * param->sn->ejecta_proportion;
-  REAL mtot_feedback =0;
-#else
   REAL mtot_feedback = curp->mass* param->sn->ejecta_proportion;
-#endif // SNTEST
 
   struct OCT* oct = cell2oct(cell);
 
@@ -209,25 +203,6 @@ void kineticFeedback(struct RUNPARAMS *param, struct CELL *cell,struct PART *cur
     REAL dir_x[]={-1., 1.,-1., 1.,-1., 1.,-1., 1.};// diagonal projection
     REAL dir_y[]={-1.,-1., 1., 1.,-1.,-1., 1., 1.};
     REAL dir_z[]={-1.,-1.,-1.,-1., 1., 1., 1., 1.};
-
-#ifdef SNTEST
-  REAL  x_src=param->unitary_stars_test->src_pos_x,
-        y_src=param->unitary_stars_test->src_pos_y,
-        z_src=param->unitary_stars_test->src_pos_z;
-
-  if ( (x_src==0) && (y_src==0) && (z_src==0)) {
-      REAL x[]={1., 0., 0., 0., 0., 0., 0., 0.};// diagonal projection
-      REAL y[]={1., 0., 0., 0., 0., 0., 0., 0.};
-      REAL z[]={1., 0., 0., 0., 0., 0., 0., 0.};
-      int i;
-      for (i=0;i<8; i++){
-        dir_x[i]=x[i];
-        dir_y[i]=y[i];
-        dir_z[i]=z[i];
-      }
-    }
-#endif // SNTEST
-
 
 #ifdef PIC
     REAL vx0 = curp->vx;
@@ -531,7 +506,6 @@ REAL computeFeedbackEnergy(struct RUNPARAMS *param, REAL aexp, int level, REAL m
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef SNTEST
 #ifdef PIC
 int feedback(struct CELL *cell, struct RUNPARAMS *param, struct CPUINFO *cpu, REAL aexp, int level, REAL dt){
 // ----------------------------------------------------------//
@@ -613,89 +587,6 @@ int feedback(struct CELL *cell, struct RUNPARAMS *param, struct CPUINFO *cpu, RE
 #endif // PIC
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#else // ifdef SNTEST
-int SN_TMP_PARAM = 1;
-int feedback(struct CELL *cell, struct RUNPARAMS *param, struct CPUINFO *cpu, REAL aexp, int level, REAL dt){
-// ----------------------------------------------------------//
-/// For sedov test
-/// A supernovae explode in a uniform medium
-// ----------------------------------------------------------//
-
-	struct OCT* oct = cell2oct(cell);
-  REAL dx = POW(2.0,-level);
-
-  REAL  x_src=param->unitary_stars_test->src_pos_x,
-        y_src=param->unitary_stars_test->src_pos_y,
-        z_src=param->unitary_stars_test->src_pos_z;
-
-
-  REAL x=(oct->x+( cell->idx    & 1)*dx);
-  REAL y=(oct->y+((cell->idx>>1)& 1)*dx);
-  REAL z=(oct->z+( cell->idx>>2    )*dx);
-
-	/*
-	REAL x=(oct->x+( cell->idx    & 1)*dx+dx*0.5);
-	REAL y=(oct->y+((cell->idx>>1)& 1)*dx+dx*0.5);
-	REAL z=(oct->z+( cell->idx>>2    )*dx+dx*0.5);
-  */
-
-  REAL dX = x-x_src;
-  REAL dy = y-y_src;
-  REAL dz = z-z_src;
-
-	REAL R=SQRT(dX*dX+dy*dy+dz*dz);
-  REAL rmax = 0.6 * POW(0.5,param->lcoarse);
-
-	if (R<=rmax){
-
-
-
-//    if ( (x==x_src) && (y==y_src) && (z==z_src) && cell->child==NULL){
-
-
-		REAL in_yrs = param->unit.unit_t/MYR *1e6;
-		REAL t = aexp * in_yrs;
-
-
-		if ( t >= param->unitary_stars_test->lifetime && SN_TMP_PARAM ){
-
-      printf("======================================\n");
-      printf("===SN EXPLODE=========================\n");
-      printf("======================================\n");
-
-      //printf("x_src=%e y_src=%e, z_src=%e\n", param->unitary_stars_test->src_pos_x, param->unitary_stars_test->src_pos_y, param->unitary_stars_test->src_pos_z);
-
-      //REAL msn = param->unitary_stars_test->mass * SOLAR_MASS;
-      //REAL E = computeFeedbackEnergy(param, 1, level, msn/param->unit.unit_mass);
-
-      REAL e=1. ;
-      REAL E=e /POW( 2.,-3.*level);
-
-    //  if ( (x_src==0) && (y_src==0) && (z_src==0)) E/=8.;
-
-    //  printf("msn=%e\n",  param->unitary_stars_test->mass );
-
-      printf("cell egy t0=%e\n",  cell->field.E);
-
-      //thermalFeedback_cell(cell, E);
-      thermalFeedback_oct(cell, E *0.3);
-      kineticFeedback_test(param, cell,NULL,aexp,level, E *0.7);
-
-      printf("cell egy t1=%e\n",  cell->field.E);
-
-      printf("SN active at t = %e\n", t);
-      printf("SN pos =>  x=%e y=%e z=%e \n", x,y,z);
-
-      printf("eblast= %e \n", E*POW( 2.,-3.*level));
-
-      return 1;
-    }
-    return 0;
-  }
-  return 0;
-}
-#endif // SNTEST
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

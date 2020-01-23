@@ -1154,17 +1154,6 @@ void L_mark_cells(int level,struct RUNPARAMS *param, struct OCT **firstoct, int 
 
 			    REAL den;
 
-#ifdef EVRARD
-			    // ===================== EVRARD TEST ================
-
- 			    mcell=comp_grad_hydro(curoct, icell)*(curoct->level>=param->lcoarse);
-			    if(mcell>mmax) mmax=mcell;
-			    if((mcell>(threshold))&&(curoct->cell[icell].marked==0)) {
-			      curoct->cell[icell].marked=marker;
-			      nmark++;stati[2]++;
-			    }
-
-#else
 			    // ===================== AMR COSMO ================
 
 			    // First we define the density
@@ -1191,15 +1180,6 @@ void L_mark_cells(int level,struct RUNPARAMS *param, struct OCT **firstoct, int 
 			    // Second we apply a criterion
 
 #ifdef PIC
-#ifdef EDBERT
-			    mcell=den*(curoct->level>=param->lcoarse)*dx*dx*dx;
-			    if(mcell>mmax) mmax=mcell;
-			    if((mcell>threshold)&&(curoct->cell[icell].marked==0)) {
- 			      curoct->cell[icell].marked=marker;
-			      nmark++;stati[2]++;
-			    }
-
-#else // #ifndef EDBERT
 #ifdef ZELDOVICH
 			    mcell=den*(curoct->level>=param->lcoarse);
 			    if(mcell>mmax) mmax=mcell;
@@ -1289,7 +1269,6 @@ void L_mark_cells(int level,struct RUNPARAMS *param, struct OCT **firstoct, int 
 
 			    // --------------- MAIN AMR COSMO
 #endif // ZELDOVICH
-#endif // EDBERT
 #else // #ifndef PIC
 
 			    // ===================== AMR NO COSMO ================
@@ -1301,34 +1280,7 @@ void L_mark_cells(int level,struct RUNPARAMS *param, struct OCT **firstoct, int 
 			      nmark++;stati[2]++;
 			    }
 #endif // WGRAV
-
-#ifdef SNTEST
-/*
-          threshold=1e-5;
-
-			    mcell=comp_grad_hydro(curoct, icell)*(curoct->level>=param->lcoarse);//*(fabs(curoct->y-0.5)<0.05)*(fabs(curoct->z-0.5)<0.05);
-			    if(mcell>mmax) mmax=mcell;
-			    if((mcell>(threshold))&&(curoct->cell[icell].marked==0)) {
-			      curoct->cell[icell].marked=marker;
-			      nmark++;stati[2]++;
-			    }
-*/
-        //if (cpu->nsteps >= 50)
-        {
-          REAL epsilon = 1e-1;
-          REAL threshold = 1. + epsilon;
-          mcell=curoct->cell[icell].field.d;
-			    if( (mcell>threshold)&&(curoct->cell[icell].marked==0)) {
-			      curoct->cell[icell].marked=marker;
-			      nmark++;stati[2]++;
-			    }
-        }
-
-
-
-#endif // SNTEST
 #endif // PIC
-#endif // EVRARD
 
 			  }
 

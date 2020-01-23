@@ -1031,11 +1031,6 @@ int main(int argc, char *argv[])
     lastpart=read_zeldovich_part(part, &cpu, &munit, &ainit, &npart, &param,firstoct);
 #endif
 
-#ifdef EDBERT // ==================== read ZELDOVICH file
-    lastpart=read_edbert_part(part, &cpu, &munit, &ainit, &npart, &param,firstoct);
-#endif
-
-
 #endif
 
     // we set all the "remaining" particles mass to -1
@@ -1094,24 +1089,7 @@ int main(int argc, char *argv[])
 
 #else
 
-#ifdef EVRARD
-    read_evrard_hydro(&cpu,firstoct,&param);
-#else
 
-    //===================================================================================================================================
-    //===================================================================================================================================
-    //===================================================================================================================================
-    //===================================================================================================================================
-    //===================================================================================================================================
-    //===================================================================================================================================
-    //===================================================================================================================================
-    //===================================================================================================================================
-    //===================================================================================================================================
-    //===================================================================================================================================
-
-    // initialisation of hydro quantities
-
-#endif // EVRARD
 #endif // GRAFIC
 #endif // WHYDRO2
 
@@ -1348,18 +1326,6 @@ int main(int argc, char *argv[])
     int *ptot = (int*)calloc(2,sizeof(int));
     mtot=multicheck(firstoct,ptot,param.lcoarse,param.lmax,cpu.rank,&cpu,&param,0);
 
-
-#ifdef SNTEST
-  cpu->trigstar=1;
-  if(param.nrestart==0){
-      for(level=1;level<=levelmax;level++){
-//        setOctList(firstoct[level-1], &cpu, &param,level);
-      }
-      supernovae(&param,&cpu, 0, 0, levelcoarse, 0);
-  }
-#endif // SNTEST
-
-
   // ===== SOME BOOKEEPING FOR SPLIT INITIAL CONDITIONS
 #ifdef SPLIT
  #ifdef WMPI
@@ -1539,17 +1505,9 @@ int main(int argc, char *argv[])
 
 #endif // TESTCOSMO
 
-#ifdef SNTEST
-        if (nsteps==0) offset = (int)(tsim/param.dt_dump);
-        REAL a=tsim;
-        REAL b=(int)(ndumps+offset)*param.dt_dump;
-        cond2=a>b;
-        if(cpu.rank==RANK_DISP)printf("t=%.2e next dump at %.2e\n",a,b+(a>b)*param.dt_dump);
-#endif // SNTEST
       }
 
       if(cond1||cond2||cond3||cond4){
-#ifndef EDBERT
 
 	int fdump=FDUMP;
 	if(cpu.nproc>fdump){
@@ -1567,57 +1525,6 @@ int main(int argc, char *argv[])
 	else{
 	  dumpIO(tsim+adt[levelcoarse-1],&param,&cpu,firstoct,adt,0);
 	}
-#else // EDBERT
-
-#ifndef TESTCOSMO
-#ifdef WRAD
-	tdump=(tsim+adt[levelcoarse-1])*param.unit.unit_t/MYR;
-#else
-	tdump=(tsim+adt[levelcoarse-1]);
-#endif // WRAD
-#else //TESTCOSMO
-	tdump=interp_aexp(tsim+adt[levelcoarse-1],cosmo.tab_aexp,cosmo.tab_ttilde);
-	adump=tdump;
-	printf("tdump=%e tsim=%e adt=%e\n",tdump,tsim,adt[levelcoarse-1]);
-#ifdef EDBERT
-	treal=-integ_da_dt(tdump,1.0,cosmo.om,cosmo.ov,1e-8); // in units of H0^-1
-	tdump=(treal-trealBB)/(treal0-trealBB);
-#endif // EDBERT
-#endif // TESTCOSMO
-
-	// === Hydro dump
-
-	//printf("tdum=%f\n",tdump);
-	sprintf(filename,"data/grid.%05d.p%05d",ndumps,cpu.rank);
-	if(cpu.rank==RANK_DISP){
-	  printf("Dumping .......");
-	  printf("%s\n",filename);
-	}
-	dumpgrid(levelmax,firstoct,filename,adump,&param);
-
-	#ifdef PIC
-		sprintf(filename,"data/part.%05d.p%05d",ndumps,cpu.rank);
-		if(cpu.rank==RANK_DISP){
-		  printf("Dumping .......");
-		  printf("%s\n",filename);
-		}
-		dumppart(firstoct,filename,levelcoarse,levelmax,adump,&cpu);
-	#endif // PIC
-
-		// backups for restart
-		sprintf(filename,"bkp/grid.%05d.p%05d",ndumps,cpu.rank);
-		REAL tsave=tdump;
-#ifndef TESTCOSMO
-		tsave=tdump/(param.unit.unit_t/MYR);
-#endif // TESTCOSMO
-
-		save_amr(filename,firstoct,tsave,tinit,nsteps,ndumps,&param, &cpu,part,adt);
-#ifdef PIC
-		sprintf(filename,"bkp/part.%05d.p%05d",ndumps,cpu.rank);
-		save_part(filename,firstoct,param.lcoarse,param.lmax,tsave,&cpu,part);
-#endif // PIC
-
-#endif // EDBERT
 	ndumps++;
       }
 

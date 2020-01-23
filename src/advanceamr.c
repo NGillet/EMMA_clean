@@ -545,7 +545,6 @@ REAL Advance_level(int level,REAL *adt, struct CPUINFO *cpu, struct RUNPARAMS *p
     // ready to dump particles
     // (note fields are dumped in Emma.c
 
-#ifndef EDBERT
 if(level==param->lcoarse){
 
       int cond1 = nsteps%param->ndumps==0;
@@ -556,8 +555,6 @@ if(level==param->lcoarse){
 #ifdef TESTCOSMO
       if(param->aexpdump) cond4=aexp>param->aexpdump;
 #endif
-
-
 
       if(param->dt_dump){
         //cond1=0;
@@ -571,16 +568,6 @@ if(level==param->lcoarse){
         if(cpu->rank==RANK_DISP)printf("t=%.2e yrs next part dump at %.2e yrs\n",a,b+(a>b)*param->dt_dump);
 #endif // TESTCOSMO
 
-
-#ifdef SNTEST
-        if (nsteps==0) offset = (int)(tloc/param->dt_dump);
-        REAL a=tloc;
-        REAL b=(int)(*(cpu->ndumps)+offset)*param->dt_dump;
-        cond2=a>b;
-        if(cpu->rank==RANK_DISP)printf("t=%.2e next dump at %.2e\n",a,b+(a>b)*param->dt_dump);
-#endif // SNTEST
-
-
   }
 
       if(cond1||cond2||cond3||cond4){
@@ -592,117 +579,6 @@ if(level==param->lcoarse){
 	//abort();
       }
     }
-#endif
-
-
-
-#if 0
-    // =============== Computing Energy diagnostics
-
-    ekp=0.;
-    ein=0.;
-#ifdef PIC
-    //    if(level==param->lcoarse){
-      egypart(cpu,&ekp,&epp,param,aexp);
-#endif
-
-      /* /\* /\\* // lets try to compute the potential from the grid *\\/ *\/ */
-      epp=0.;
-      REAL potloc=0., einloc=0., ekploc=0.;
-      struct OCT *nextoct;
-      int icell;
-      REAL dx;
-      int levelin;
-      REAL u,v,w;
-      //      if(cpu->rank==RANK_DISP) printf("get pop\n");
-
-      for(levelin=param->lcoarse;levelin<=param->lmax;levelin++){
-      	nextoct=firstoct[levelin-1];
-      	dx=1./POW(2,levelin);
-      	if(nextoct!=NULL){
-      	  do // sweeping level
-      	    {
-      	      curoct=nextoct;
-      	      nextoct=curoct->next;
-      	      if(curoct->cpu!=cpu->rank) continue;
-      	      for(icell=0;icell<8;icell++) // looping over cells in oct
-      		{
-      		  if(curoct->cell[icell].child==NULL){
-      		    potloc+=aexp*dx*dx*dx*(curoct->cell[icell].gdata.d)*(curoct->cell[icell].gdata.p)*0.5;
-#ifdef WHYDRO2
-		    einloc+=dx*dx*dx*(curoct->cell[icell].field.p)/(GAMMA-1.);
-
-		    u=curoct->cell[icell].field.u;
-		    v=curoct->cell[icell].field.v;
-		    w=curoct->cell[icell].field.w;
-
-		    ekploc+=dx*dx*dx*(curoct->cell[icell].field.d)*(u*u+v*v+w*w)*0.5;
-#endif
-      		  }
-      		}
-      	    }while(nextoct!=NULL);
-      	}
-      }
-
-      epp=potloc;
-      ekp=ekp+ekploc;
-      ein=ein+einloc;
-#ifdef WMPI
-      REAL sum_ekp,sum_epp,sum_ein;
-      MPI_Allreduce(&ekp,&sum_ekp,1,MPI_REEL,MPI_SUM,cpu->comm);
-      MPI_Allreduce(&epp,&sum_epp,1,MPI_REEL,MPI_SUM,cpu->comm);
-      MPI_Allreduce(&ein,&sum_ein,1,MPI_REEL,MPI_SUM,cpu->comm);
-      ekp=sum_ekp;
-      epp=sum_epp;
-      ein=sum_ein;
-#endif
-
-
-      if(nsteps==1){
-#ifdef TESTCOSMO
-	htilde=2./SQRT(param->cosmo->om)/faexp_tilde(aexp,param->cosmo->om,param->cosmo->ov)/aexp;
-	param->egy_last=epp*htilde;
-#else
-	param->egy_last=0.;
-	htilde=0.;
-#endif
-	param->egy_rhs=0.;
-  	param->egy_0=ekp+epp+ein;
-	param->egy_timelast=aexp;
-	param->egy_totlast=ekp+epp+ein;
-      }
-
-
-    if((level>=param->lcoarse)&&(nsteps>1)) {
-#ifdef TESTCOSMO
-      htilde=2./SQRT(param->cosmo->om)/faexp_tilde(aexp,param->cosmo->om,param->cosmo->ov)/aexp;
-      RHS=param->egy_rhs;
-
-      //RHS=RHS+0.5*(epp*htilde+param->egy_last)*(tloc-param->egy_timelast); // trapezoidal rule
-      RHS=RHS+0.5*(epp/aexp+param->egy_last)*(aexp-param->egy_timelast); // trapezoidal rule
-
-      //delta_e=(((ekp+epp)-param->egy_totlast)/(0.5*(epp*htilde+param->egy_last)*(tloc-param->egy_timelast))-1.);
-      delta_e=(ekp+epp+ein-param->egy_totlast-0.5*(epp/aexp+param->egy_last)*(aexp-param->egy_timelast));
-      drift_e=(((ekp+epp+ein)-param->egy_0)/RHS-1.);
-      //      param->egy_last=epp*htilde;
-      param->egy_last=epp/aexp;
-#else
-      RHS=0.;
-      delta_e=((ekp+epp+ein)-param->egy_totlast)/param->egy_totlast;
-      drift_e=((ekp+epp+ein)-param->egy_0)/param->egy_0;
-#endif
-      param->egy_rhs=RHS;
-      param->egy_timelast=aexp;
-      param->egy_totlast=ekp+epp+ein;
-
-      if(cpu->rank==RANK_DISP){
-	FILE *fpe;
-	fpe=fopen("energystat.txt","a");
-	fprintf(fpe,"%e %e %e %e %e %e %e %e %e %e %d\n",aexp,delta_e,drift_e,ekp,epp,RHS,ein,adt[level-1],param->egy_0,htilde,level);
-	fclose(fpe);
-	printf("Egystat rel. err= %e drift=%e\n",delta_e,drift_e);
-      }
-#endif
 
     // ================= II We compute the timestep of the current level
 
@@ -1161,14 +1037,8 @@ double tsn[10];
     MPI_Barrier(cpu->comm);
     tsn[0]=MPI_Wtime();
 #endif // WMPI
-#ifndef SNTEST
+
     supernovae(param,cpu, adt[level-1], aexp, level, is);
-
-#else //ifdef SNTEST
-//    setOctList(firstoct[level-1], cpu, param,level);
-//   supernovae(param,cpu, adt[level-1], tloc, level, is);
-
-#endif // SNTEST
 #endif // SUPERNOVAE
 
 

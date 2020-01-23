@@ -2452,11 +2452,6 @@ void grav_correction(int level,struct RUNPARAMS *param, struct OCT ** firstoct, 
 
 // Structure de base
 
-#ifdef SNTEST
-#define HYDROTEST
-#endif // SNTEST
-
-
 #ifdef HYDROTEST
 void recursive_neighbor_gather_oct(int ioct, int inei, int inei2, int inei3, int order, struct CELL *cell, struct HGRID *stencil,char *visit){
 

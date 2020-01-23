@@ -21,7 +21,6 @@
 
 #ifdef COARSERAD
 #ifdef STARS
-#ifndef SNTEST
 void collectstars(struct CELL *cellcoarse, struct CELL *cell,struct RUNPARAMS *param, REAL dxcoarse, REAL aexp, REAL tcur, int *ns){
 #ifdef PIC
   REAL srcint = param->srcint;
@@ -86,7 +85,6 @@ int putsource2coarse(struct CELL *cell,struct RUNPARAMS *param,int level,REAL ae
   return ns;
 }
 
-#endif //SNTEST
 #endif //STARS
 
 // --------------------------------------------------------------------
@@ -361,36 +359,6 @@ int stars_sources(struct CELL *cell,struct RUNPARAMS *param, REAL aexp){
   return flag;
 }
 #endif // STARS
-
-#ifdef TESTCLUMP
-void clump_sources(struct CELL *cell, struct OCT *curoct,struct RUNPARAMS *param, REAL aexp){
-
-  REAL factgrp[NGRP];
-  int igrp;
-  for(igrp=0;igrp<NGRP;igrp++){
-    factgrp[igrp]=param->atomic.factgrp[igrp];
-  }
-
-  int icell=cell->idx;
-
-  REAL dxcur=POW(0.5,curoct->level);
-  REAL xc=curoct->x+( icell&1    )*dxcur+dxcur*0.5;
-
-  REAL X0=1./POW(2,param->lcoarse);
-  if(fabs(xc)<=X0){
-    for(igrp=0;igrp<NGRP;igrp++){
-      curoct->cell[icell].rfield.e[igrp]=factgrp[igrp]*1e10*param->unit.unit_t/param->unit.unit_l/param->unit.unit_N/param->clight;
-      curoct->cell[icell].rfield.fx[igrp]=factgrp[igrp]*1e10*param->unit.unit_t/param->unit.unit_l/param->unit.unit_N;
-      curoct->cell[icell].rfield.fy[igrp]=0.;
-      curoct->cell[icell].rfield.fz[igrp]=0.;
-      curoct->cell[icell].rfieldnew.e[igrp] =curoct->cell[icell].rfield.e[igrp];
-      curoct->cell[icell].rfieldnew.fx[igrp]=curoct->cell[icell].rfield.fx[igrp];
-      curoct->cell[icell].rfieldnew.fy[igrp]=curoct->cell[icell].rfield.fy[igrp];
-      curoct->cell[icell].rfieldnew.fz[igrp]=curoct->cell[icell].rfield.fz[igrp];
-    }
-  }
-}
-#endif // TESTCLUMP
 
 // ============================================================================================
 int putsource(struct CELL *cell,struct RUNPARAMS *param,int level,REAL aexp, REAL tcur, struct OCT *curoct,  struct CPUINFO *cpu){
@@ -697,17 +665,6 @@ int FillRad(int level,struct RUNPARAMS *param, struct OCT ** firstoct,  struct C
 #endif // WRADHYD
 #endif // WCHEM
 
-#ifndef TESTCLUMP
-	if(curoct->cell[icell].child!=NULL){
-    int igrp;
-	  for(igrp=0;igrp<NGRP;igrp++){
-      curoct->cell[icell].rfield.src[igrp]=0.;
-      curoct->cell[icell].rfieldnew.src[igrp]=0.;
-    }
-	  continue; // src are built on the finest level
-	}
-#endif // TESTCLUMP
-
         if(cpu->trigstar) flag=putsource(&(curoct->cell[icell]),param,level,aexp,tcur,curoct,cpu); // creating sources if required
 
 	/* if(curoct->cell[icell].rfield.src[0]>0.){ */
@@ -749,20 +706,6 @@ int FillRad(int level,struct RUNPARAMS *param, struct OCT ** firstoct,  struct C
 
 #endif // WCHEM
 
-#ifndef TESTCLUMP
-	  for(igrp=0;igrp<NGRP;igrp++){
-	    //REAL factgrp[NGRP];
-	    //memcpy(&factgrp,&param->atomic.factgrp,NGRP*sizeof(REAL));
-	    curoct->cell[icell].rfield.e[igrp]=0.+EMIN;//*factgrp[igrp];
-	    curoct->cell[icell].rfield.fx[igrp]=0.;
-	    curoct->cell[icell].rfield.fy[igrp]=0.;
-	    curoct->cell[icell].rfield.fz[igrp]=0.;
-	    curoct->cell[icell].rfieldnew.e[igrp] =curoct->cell[icell].rfield.e[igrp];
-	    curoct->cell[icell].rfieldnew.fx[igrp]=curoct->cell[icell].rfield.fx[igrp];
-	    curoct->cell[icell].rfieldnew.fy[igrp]=curoct->cell[icell].rfield.fy[igrp];
-	    curoct->cell[icell].rfieldnew.fz[igrp]=curoct->cell[icell].rfield.fz[igrp];
-	  }
-#endif // TESTCLUMP
 	}
 
 #ifdef WRADHYD
