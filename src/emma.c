@@ -68,10 +68,6 @@
 #include "movie.h"
 #endif // MOVIE
 
-#ifdef WOMP
-#include <omp.h>
-#endif // WOMP
-
 
 void gdb_debug()
 {
@@ -313,11 +309,6 @@ int main(int argc, char *argv[])
 #ifdef MOVIE
 	init_movie(&param);
 #endif
-
-#ifdef WOMP
-  omp_set_num_threads(param.ompthread);
-#endif // WOMP
-
 
 #ifndef TESTCOSMO
   tmax=param.tmax;

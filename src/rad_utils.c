@@ -18,10 +18,6 @@
 #include "rad_utils_gpu.h"
 #endif
 
-#ifdef WOMP
-#include <omp.h>
-#endif // WOMP
-
 //================================================================================
 void distribE(struct CELL *cellcoarse, struct CELL *cell,struct RUNPARAMS *param,int level){
 
