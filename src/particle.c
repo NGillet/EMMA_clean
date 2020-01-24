@@ -310,9 +310,6 @@ REAL comptstep(int levelcoarse, int levelmax, struct OCT** firstoct, REAL fa, RE
                     do {
                         curp = nexp;
                         nexp = curp->next;
-                        /* #ifdef PART2 */
-                        /* 		  if(curp->idx==0) continue; */
-                        /* #endif */
                         // particle velocit
                         va = SQRT(curp->vx * curp->vx + curp->vy * curp->vy + curp->vz * curp->vz) * fa;
 
@@ -336,10 +333,6 @@ REAL comptstep(int levelcoarse, int levelmax, struct OCT** firstoct, REAL fa, RE
                         else if((aa == 0.) || (va == 0.)) {
                             dtlev = 1e9;
                         }
-
-#ifdef PART2
-                        printf("mass=%e aa=%e va=%e dt=%e tmax=%e\n", curp->mass, aa, va, dtlev, tmax);
-#endif
 
                         if(dtnew > dtlev) dtnew = dtlev;
                     } while(nexp != NULL);
@@ -422,10 +415,6 @@ REAL L_comptstep(int level, struct RUNPARAMS* param, struct OCT** firstoct, REAL
                         else {
                             dtlev = 1e9;
                         }
-
-#ifdef PART2
-                        printf("mass=%e aa=%e va=%e dt=%e tmax=%e\n", curp->mass, aa, va, dtlev, tmax);
-#endif
 
                         if(dtnew > dtlev) dtnew = dtlev;
                     } while(nexp != NULL);

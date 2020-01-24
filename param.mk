@@ -8,37 +8,21 @@ DEFINES  +=  -DTESTCOSMO
 DEFINES  +=  -DSTARS
 #DEFINES  +=  -DSUPERNOVAE
 #DEFINES  +=  -DAGN
-#DEFINES  +=  -DZOOM !!!DELETED!!!
 
 #------------ PRECISION OPTIONS ---------------------
 DEFINES  +=  -DSINGLEPRECISION
 
 #------------ MPI OPTIONS ---------------------
 DEFINES  +=  -DWMPI
-#DEFINES  +=  -DFLOORDT
-
-#------------ OPEN MP OPTIONS ---------------------
-#DEFINES += -DWOMP !!!DELETED!!!
 
 #------------ CUDA OPTIONS ---------------------
 DEFINES  +=  -DWCUDA_ERR
-#DEFINES  +=  -DNOCOMP
 
 #------------ ICs OPTIONS ---------------------
-#DEFINES  +=  -DJUSTIC !!!DELETED!!!
-#DEFINES  +=  -DGRAFIC -DBULKFLOW
-DEFINES  +=  -DGRAFIC -DEMMAZELDO #-DSPLIT
-#DEFINES  +=  -DGRAFIC -DEMMAZELDO
-#DEFINES  +=  -DZELDOVICH
-#DEFINES  +=  -DEVRARD !!!DELETED!!!
-#DEFINES  +=  -DEDBERT !!!DELETED!!!
-#DEFINES  +=  -DTUBE !!!DELETED!!!
-#DEFINES  +=  -DSED #requires TUBE !!!DELETED!!!
-#DEFINES  +=  -DPARTN
-#DEFINES  +=  -DPART2
-#DEFINES  +=  -DWRADTEST !!!DELETED!!!
-#DEFINES  +=  -DTESTCLUMP # RADTEST MUST BE SET !!!DELETED!!!
-#DEFINES  +=  -DSNTEST    # RADTEST MUST BE SET !!!DELETED!!!
+DEFINES  +=  -DGRAFIC
+#DEFINES  +=  -DSPLIT ### an option of GRAFIC
+DEFINES  +=  -DEMMAZELDO
+#DEFINES  +=  -DBULKFLOW
 
 #------------ PIC OPTIONS ----------------------
 #DEFINES += -DPART_EGY
@@ -47,17 +31,17 @@ DEFINES  +=  -DGRAFIC -DEMMAZELDO #-DSPLIT
 #DEFINES += -DAMR_SEMILAGRANGIAN
 
 #------------ GRAV OPTIONS ----------------------
-#DEFINES  +=  -DFASTGRAV
 DEFINES  += -DONFLYRED
 
 # ----------- HYDRODYNAMICS OPTIONS ------------
 DEFINES  +=  -DRIEMANN_HLLC
-#DEFINES  +=  -DRIEMANN_EXACT
 DEFINES  +=  -DPRIMITIVE
 DEFINES  +=  -DDUAL_E
-#DEFINES  +=  -DNOADX
+#DEFINES  +=  -DNOADX a voir 
 
 # ----------- RADIATION OPTIONS ------------
+# ici je garde une bonne partie pour le moment
+
 DEFINES  += -DWCHEM
 #DEFINES  += -DHESIMPLE
 #DEFINES  += -DS_50000
@@ -84,15 +68,6 @@ DEFINES  += -DCOARSERAD
 #DEFINES  += -DCONTINUOUSSTARS
 
 # ---- BOUNDARY CONDITIONS (PERIODIC BY DEFAULT)--
-#DEFINES  +=  -DTRANSZM !!!DELETED!!!
-#DEFINES  +=  -DTRANSZP !!!DELETED!!!
-#DEFINES  +=  -DTRANSYM !!!DELETED!!!
-#DEFINES  +=  -DTRANSYP !!!DELETED!!!
-#DEFINES  +=  -DTRANSXM !!!DELETED!!!
-#DEFINES  +=  -DTRANSXP !!!DELETED!!!
-#DEFINES  +=  -DREFXM # TRANS must be turned on too !!!DELETED!!!
-#DEFINES  +=  -DREFYM # TRANS must be turned on too !!!DELETED!!!
-#DEFINES  +=  -DREFZM # TRANS must be turned on too !!!DELETED!!!
 
 # ---- OUTPUT--------------
 #DEFINES += -DWDBG

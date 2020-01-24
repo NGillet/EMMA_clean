@@ -637,14 +637,6 @@ REAL Advance_level(int level, REAL* adt, struct CPUINFO* cpu, struct RUNPARAMS* 
         dtnew = (dtrad < dtnew ? dtrad : dtnew);
 #endif
 #endif // WRAD
-#ifdef FLOORDT
-        // REALLY WEIRD ===
-        // Apparently there are some truncation errors in REDUCTION operation on double
-        // that makes multi-processor dt different than the mono processor ones !
-        // the few lines below removes this...
-        REAL dtf = floor(dtnew * 1e10) / 1e10;
-        dtnew = dtf;
-#endif
         //printf("dtnew %e before\n",dtnew);
         /// ================= Assigning a new timestep for the current level
         dtold = adt[level - 1];

@@ -2524,8 +2524,7 @@ int advancehydroGPU(struct OCT **firstoct, int level, struct CPUINFO *cpu, struc
 	  dim3 gridoct(ng);
 	  dim3 blockoct(nt);
 	  
-	  
-#ifndef NOCOMP     
+	     
 	  cudaMemcpyAsync(cpu->hyd_stencil+offset,stencil+offset,vnread[is]*sizeof(struct HGRID),cudaMemcpyHostToDevice,stream[is]);  
 	  
 	  //printf("Sweep hydro dt=%e dx=%e\n",dtnew,dxcur);
@@ -2542,7 +2541,6 @@ int advancehydroGPU(struct OCT **firstoct, int level, struct CPUINFO *cpu, struc
 	  dupdatefield<<<gridoct,blockoct,0,stream[is]>>>(cpu->hyd_stencil+offset,vnread[is],stride,cpu,dxcur,dtnew);
 	
 	  cudaMemcpyAsync(stencil+offset,cpu->hyd_stencil+offset,vnread[is]*sizeof(struct HGRID),cudaMemcpyDeviceToHost,stream[is]);  
-#endif
 	
 	  offset+=vnread[is];
 	  }

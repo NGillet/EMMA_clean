@@ -865,11 +865,6 @@ void L_mark_cells(int level, struct RUNPARAMS* param, struct OCT** firstoct, int
 #ifdef WGRAV
                                 den = curoct->cell[icell].gdata.d + 1.;
 #endif // WGRAV
-#ifdef ZELDOVICH
-#ifdef WHYDRO2
-                                den = curoct->cell[icell].field.d;
-#endif // WHYDRO2
-#endif // ZELDOVICH
 #else // #ifndef TESTCOSMO
 #ifdef WGRAV
                                 // ->> utilise pour la cosmo // le gaz est utilise
@@ -878,18 +873,6 @@ void L_mark_cells(int level, struct RUNPARAMS* param, struct OCT** firstoct, int
 #endif // TESTCOSMO
                                 // Second we apply a criterion
 #ifdef PIC
-#ifdef ZELDOVICH
-                                mcell = den * (curoct->level >= param->lcoarse);
-
-                                if(mcell > mmax) mmax = mcell;
-
-                                if((mcell > threshold) && (curoct->cell[icell].marked == 0)) {
-                                    curoct->cell[icell].marked = marker;
-                                    nmark++;
-                                    stati[2]++;
-                                }
-
-#else // #ifndef ZELDOVICH
                                 // --------------- MAIN AMR COSMO
                                 int refarea = 1;
 #ifndef AMR_SEMILAGRANGIAN
@@ -964,7 +947,6 @@ void L_mark_cells(int level, struct RUNPARAMS* param, struct OCT** firstoct, int
                                 threshold = param->amrthresh0;
 #endif // AMR_SEMILAGRANGIAN
                                 // --------------- MAIN AMR COSMO
-#endif // ZELDOVICH
 #else // #ifndef PIC
                                 // ===================== AMR NO COSMO ================
 #ifdef WGRAV

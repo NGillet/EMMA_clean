@@ -220,12 +220,7 @@ int main(int argc, char* argv[])
     //========== RIEMANN CHECK ====================/
 #ifdef WHYDRO2
     int rtag = 0;
-#ifdef RIEMANN_EXACT
-    rtag = 1;
-#endif
-#ifdef RIEMANN_HLL
-    rtag = 2;
-#endif
+
 #ifdef RIEMANN_HLLC
     rtag = 3;
 #endif
@@ -326,14 +321,7 @@ int main(int argc, char* argv[])
     ngridmax = param.ngridmax;
 #ifdef PIC
     npartmax = param.npartmax;
-#ifdef PART2
-    npart = 5;
-#else
     npart = 128 * 128 * 128;
-#endif
-#ifdef PARTN
-    npart = 32768;
-#endif
 #endif
     threshold = param.amrthresh0;
 #ifdef TESTCOSMO
@@ -485,10 +473,6 @@ int main(int argc, char* argv[])
     // FOR THE MOMENT: GPU POISSON IS DISABLED, HENCE NO NEED FOR ALLOCATIONS on GPU
 #ifdef WGRAV
     //create_pinned_gravstencil(&gstencil,gstride);
-    /* #ifdef FASTGRAV */
-    /*   struct STENGRAV dev_stencil; */
-    /*   cpu.dev_stencil=&dev_stencil; */
-    /* #endif */
     /*   create_gravstencil_GPU(&cpu,gstride); */
     /*   cpu.gresA=GPUallocREAL(gstride*8); */
     /*   cpu.gresB=GPUallocREAL(gstride*8); */
@@ -693,143 +677,7 @@ int main(int argc, char* argv[])
         if(cpu.rank == RANK_DISP) printf("==> starting part\n");
 
         // initialisation of particles
-#ifdef PART2
-        int ir, nr = 5;
-        ip = 0;
-        REAL dxcell = 1. / POW(2., levelcoarse);
-        REAL epsilon = 0.;
-        REAL r0 = 0.12;
-        REAL vf = 0.8;
-        npart = 0;
 
-        for(ir = 0; ir < nr; ir++) {
-            // first we read the position etc... (eventually from the file)
-            if(ir == 0) {
-                x = 0.5;
-                y = 0.5;
-                z = 0.5;
-                vx = 0.;
-                vy = 0.;
-                vz = 0.;
-                mass = 1.0 - epsilon;
-            }
-
-            else if(ir == 1) {
-                x = 0.5 + r0;
-                y = 0.5;
-                z = 0.5;
-                vx = 0.;
-                vy = SQRT((1. - epsilon) / r0) * 1.0; // this one is circular
-                vz = 0.;
-                mass = epsilon / (nr - 1);
-            }
-
-            else if(ir == 2) {
-                x = 0.5;
-                y = 0.5 + r0 * 0.3;
-                z = 0.5;
-                vy = 0.;
-                vx = -SQRT((1. - epsilon) / (r0 * 0.3)) * 1.0; //this one is circular
-                vz = 0.;
-                mass = epsilon / (nr - 1);
-            }
-
-            else if(ir == 3) {
-                x = 0.5 - r0;
-                y = 0.5;
-                z = 0.5;
-                vx = 0.;
-                vy = -SQRT((1. - epsilon) / r0) * vf;
-                vz = 0.;
-                mass = epsilon / (nr - 1);
-            }
-
-            else if(ir == 4) {
-                x = 0.5;
-                y = 0.5 - r0;
-                z = 0.5;
-                vy = 0.;
-                vx = SQRT((1. - epsilon) / r0) * vf;
-                vz = 0.;
-                mass = epsilon / (nr - 1);
-            }
-
-            // periodic boundary conditions
-            x += (x < 0) * ((int)(-x) + 1) - (x > 1.) * ((int)x);
-            y += (y < 0) * ((int)(-y) + 1) - (y > 1.) * ((int)y);
-            z += (z < 0) * ((int)(-z) + 1) - (z > 1.) * ((int)z);
-
-            // it it belongs to the current cpu, we proceed and assign the particle to the particle array
-            if(segment_part(x, y, z, &cpu, levelcoarse)) {
-                part[ip].x = x;
-                part[ip].y = y;
-                part[ip].z = z;
-                part[ip].vx = vx;
-                part[ip].vy = vy;
-                part[ip].vz = vz;
-                part[ip].mass = mass;
-                lastpart = part + ip;
-                part[ip].idx = ir;
-                ip++;
-            }
-        }
-
-        npart = ip; // we compute the localnumber of particle
-#endif // PART2
-#ifdef PARTN
-        int ir, nr = 32768;
-        ip = 0;
-        REAL dxcell = 1. / POW(2., levelcoarse);
-        REAL th, ph, r;
-
-        for(ir = 0; ir < nr; ir++) {
-            // first we read the position etc... (eventually from the file)
-            if(ir == 0) {
-                x = 0.5;
-                y = 0.5;
-                z = 0.5;
-                vx = 0.;
-                vy = 0.;
-                vz = 0.;
-                mass = 1.;
-            }
-
-            else {
-                th = acos(((REAL)(rand()) / RAND_MAX * 2 - 1.));
-                ph = 2 * M_PI * (REAL)(rand()) / RAND_MAX;
-                //r=(REAL)(rand())/RAND_MAX*0.3;
-                r = 0.12;
-                x = r * sin(th) * cos(ph) + 0.5;
-                y = r * sin(th) * sin(ph) + 0.5;
-                z = r * cos(th) + 0.5;
-                vx = (REAL)(rand()) / RAND_MAX * 2. - 1.;
-                vy = (REAL)(rand()) / RAND_MAX * 2. - 1.;
-                vz = (REAL)(rand()) / RAND_MAX * 2. - 1.;
-                mass = 0.;
-            }
-
-            // periodic boundary conditions
-            x += (x < 0) * ((int)(-x) + 1) - (x > 1.) * ((int)x);
-            y += (y < 0) * ((int)(-y) + 1) - (y > 1.) * ((int)y);
-            z += (z < 0) * ((int)(-z) + 1) - (z > 1.) * ((int)z);
-
-            // it it belongs to the current cpu, we proceed and assign the particle to the particle array
-            if(segment_part(x, y, z, &cpu, levelcoarse)) {
-                part[ip].x = x;
-                part[ip].y = y;
-                part[ip].z = z;
-                part[ip].vx = vx;
-                part[ip].vy = vy;
-                part[ip].vz = vz;
-                part[ip].mass = mass;
-                lastpart = part + ip;
-                part[ip].idx = ir;
-                ip++;
-            }
-        }
-
-        npart = ip; // we compute the localnumber of particle
-#endif // PARTN
 #ifdef TESTPLUM
         int dummy;
         REAL dummyf;
@@ -900,9 +748,6 @@ int main(int argc, char* argv[])
 #else
         lastpart = read_grafic_part(part, &cpu, &munit, &ainit, &npart, &param, param.lcoarse);
 #endif
-#endif
-#ifdef ZELDOVICH // ==================== read ZELDOVICH file
-        lastpart = read_zeldovich_part(part, &cpu, &munit, &ainit, &npart, &param, firstoct);
 #endif
 #endif
 
