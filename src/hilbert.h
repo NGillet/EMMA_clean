@@ -13,7 +13,7 @@ typedef unsigned long halfmask_t;
 
 /*****************************************************************
  * hilbert_i2c
- * 
+ *
  * Convert an index into a Hilbert curve to a set of coordinates.
  * Inputs:
  *  nDims:      Number of coordinate axes.
@@ -29,7 +29,7 @@ void hilbert_i2c(unsigned nDims, unsigned nBits, bitmask_t index, bitmask_t coor
 
 /*****************************************************************
  * hilbert_c2i
- * 
+ *
  * Convert coordinates of a point on a Hilbert curve to its index.
  * Inputs:
  *  nDims:      Number of coordinates.
@@ -45,7 +45,7 @@ bitmask_t hilbert_c2i(unsigned nDims, unsigned nBits, bitmask_t const coord[]);
 
 /*****************************************************************
  * hilbert_cmp, hilbert_ieee_cmp
- * 
+ *
  * Determine which of two points lies further along the Hilbert curve
  * Inputs:
  *  nDims:      Number of coordinates.
@@ -65,7 +65,7 @@ int hilbert_ieee_cmp(unsigned nDims, double const* coord1, double const* coord2)
 
 /*****************************************************************
  * hilbert_box_vtx
- * 
+ *
  * Determine the first or last vertex of a box to lie on a Hilbert curve
  * Inputs:
  *  nDims:      Number of coordinates.
@@ -83,14 +83,14 @@ int hilbert_ieee_cmp(unsigned nDims, double const* coord1, double const* coord2)
  */
 unsigned
 hilbert_box_vtx(unsigned nDims, unsigned nBytes, unsigned nBits,
-		int findMin, void* c1, void* c2);
+                int findMin, void* c1, void* c2);
 unsigned
 hilbert_ieee_box_vtx(unsigned nDims,
-		     int findMin, double* c1, double* c2);
+                     int findMin, double* c1, double* c2);
 
 /*****************************************************************
  * hilbert_box_pt
- * 
+ *
  * Determine the first or last point of a box to lie on a Hilbert curve
  * Inputs:
  *  nDims:      Number of coordinates.
@@ -106,14 +106,14 @@ hilbert_ieee_box_vtx(unsigned nDims,
  */
 unsigned
 hilbert_box_pt(unsigned nDims, unsigned nBytes, unsigned nBits,
-	       int findMin, void* coord1, void* coord2);
+               int findMin, void* coord1, void* coord2);
 unsigned
 hilbert_ieee_box_pt(unsigned nDims,
-		    int findMin, double* c1, double* c2);
+                    int findMin, double* c1, double* c2);
 
 /*****************************************************************
  * hilbert_nextinbox
- * 
+ *
  * Determine the first point of a box after a given point to lie on a Hilbert curve
  * Inputs:
  *  nDims:      Number of coordinates.
@@ -123,7 +123,7 @@ hilbert_ieee_box_pt(unsigned nDims,
  *  coord1:     Array of nDims nBytes-byte coordinates - one corner of box
  *  coord2:     Array of nDims nBytes-byte coordinates - opposite corner
  *  point:      Array of nDims nBytes-byte coordinates - lower bound on point returned
- *  
+ *
  * Output:
       if returns 1:
  *      c1 and c2 modified to refer to least point after "point" in box
@@ -134,12 +134,12 @@ hilbert_ieee_box_pt(unsigned nDims,
  */
 int
 hilbert_nextinbox(unsigned nDims, unsigned nBytes, unsigned nBits,
-		  int findPrev, void* coord1, void* coord2,
-		  void const* point);
+                  int findPrev, void* coord1, void* coord2,
+                  void const* point);
 
 /*****************************************************************
  * hilbert_incr
- * 
+ *
  * Advance from one point to its successor on a Hilbert curve
  * Inputs:
  *  nDims:      Number of coordinates.

@@ -84,15 +84,15 @@ DEFINES  += -DCOARSERAD
 #DEFINES  += -DCONTINUOUSSTARS
 
 # ---- BOUNDARY CONDITIONS (PERIODIC BY DEFAULT)--
-#DEFINES  +=  -DTRANSZM
-#DEFINES  +=  -DTRANSZP
-#DEFINES  +=  -DTRANSYM
-#DEFINES  +=  -DTRANSYP
-#DEFINES  +=  -DTRANSXM
-#DEFINES  +=  -DTRANSXP
-#DEFINES  +=  -DREFXM # TRANS must be turned on too
-#DEFINES  +=  -DREFYM # TRANS must be turned on too
-#DEFINES  +=  -DREFZM # TRANS must be turned on too
+#DEFINES  +=  -DTRANSZM !!!DELETED!!!
+#DEFINES  +=  -DTRANSZP !!!DELETED!!!
+#DEFINES  +=  -DTRANSYM !!!DELETED!!!
+#DEFINES  +=  -DTRANSYP !!!DELETED!!!
+#DEFINES  +=  -DTRANSXM !!!DELETED!!!
+#DEFINES  +=  -DTRANSXP !!!DELETED!!!
+#DEFINES  +=  -DREFXM # TRANS must be turned on too !!!DELETED!!!
+#DEFINES  +=  -DREFYM # TRANS must be turned on too !!!DELETED!!!
+#DEFINES  +=  -DREFZM # TRANS must be turned on too !!!DELETED!!!
 
 # ---- OUTPUT--------------
 #DEFINES += -DWDBG

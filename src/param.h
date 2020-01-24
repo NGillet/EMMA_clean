@@ -39,9 +39,9 @@
 #define ELECTRONVOLT (1.602176565e-19) //J
 
 #ifndef WHYDRO2
-  #define OMEGAB (0.0)
+#define OMEGAB (0.0)
 #else
-  #define OMEGAB (0.049) // 0.049 for PLANCK
+#define OMEGAB (0.049) // 0.049 for PLANCK
 #endif
 
 #ifdef HELIUM
